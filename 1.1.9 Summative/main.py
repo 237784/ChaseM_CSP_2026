@@ -25,7 +25,7 @@ screen.update()
 ###############################################
 
 ##Ask the user how many turtles they want to create##
-num_balls = screen.numinput("Circles", "How many Circles do you want?", minval=1, maxval=50, default=5)
+num_balls = screen.numinput("Circles", "How many Circles do you want?", minval=1, maxval=10, default=5)
 #####################################################
 
 ##Put the selected number of turtles in a list##
@@ -54,10 +54,22 @@ for i in range(int(num_balls)):
     y = random.randint(-270, 270)
     ball.goto(x, y)
     ###############################
-    
+
   balls.append(ball)
   screen.update()
 ##################################################
+
+##Making the collision counter##
+collision_count = 0
+collision_counter = turtle.Turtle()
+collision_counter.hideturtle()
+collision_counter.penup()
+collision_counter.speed(0)
+collision_counter.goto(0, display_height + 20)
+collision_counter.write(f"Collisions: {collision_count}", align="center", font=("Arial", 16, "normal"))
+################################
+
+##Start the motion##
 
 
 screen.mainloop()
