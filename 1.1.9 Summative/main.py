@@ -1,6 +1,7 @@
 import turtle
 import random
 import math
+
 screen = turtle.Screen()
 screen.bgcolor("beige")
 screen.setup(width=800, height=800)
@@ -62,7 +63,7 @@ for i in range(int(num_balls)):
   ball.dx = speed * math.cos(math.radians(angle))
   ball.dy = speed * math.sin(math.radians(angle))
   ###################################
-
+  ball.pendown()
   balls.append(ball)
   screen.update()
 ##################################################
@@ -90,27 +91,39 @@ screen.update()
 ##Start the sim##
 started = False
 def move_balls():
-    if started:
-        for ball in balls:
-           new_x = ball.xcor() + ball.dx
-           new_y = ball.ycor() + ball.dy
+  if started:
+    for ball in balls:
+      new_x = ball.xcor() + ball.dx
+      new_y = ball.ycor() + ball.dy
 
-           if new_x < -display_width + 10 or new_x > display_width - 10:
-              ball.dx *= -1
-           if new_y < -display_height +10 or new_y > display_height - 10:
-              ball.dy *= -1
+    if new_x < -display_width + 10 or new_x > display_width - 10:
+      ball.dx *= -1
+    if new_y < -display_height +10 or new_y > display_height - 10:
+      ball.dy *= -1
 
-           ball.goto(ball.xcor()+ball.dx, ball.ycor()+ball.dy)
-    screen.update()
-    screen.ontimer(move_balls, 33)
+    ball.goto(ball.xcor()+ball.dx, ball.ycor()+ball.dy)
+
+  global collision_count
+  for i in range(len(balls)):
+    for j in range(i + 1, len(balls)):
+      ball = balls[i]
+      other_ball = balls[j]
+      if ball.distance(other_ball) < 20:
+        ball.dx, other_ball.dx = other_ball.dx, ball.dx
+        ball.dy, other_ball.dy = other_ball.dy, ball.dy
+        collision_count += 1
+        collision_counter.clear()
+        collision_counter.write(f"Collisions: {collision_count}", align="center", font=("Arial", 16, "normal"))
+
+  screen.update()
+  screen.ontimer(move_balls, 33)
 
 def start():
-    global started
-    started = True
-    start_prompt.clear()
+  global started
+  started = True
+  start_prompt.clear()
 
 screen.listen()
 screen.onkey(start, "space")
 move_balls()
-balls.stamp("circle")
 screen.mainloop()
