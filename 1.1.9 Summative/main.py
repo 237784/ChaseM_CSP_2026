@@ -10,24 +10,41 @@ screen.tracer(0)
 display_width = 300 #half of the width of the display
 display_height = 300 # half of the height of the display
 display = turtle.Turtle()
+##Making the outer box that they actually interactw with##
 display.hideturtle()
 display.penup()
 display.speed(0)
 display.pensize(3)
 display.goto(-display_width, -display_height)
 display.pendown()
-display.fillcolor("white")
+display.pencolor("beige")
+display.fillcolor("beige")
 display.begin_fill()
 display.goto(display_width, -display_height)
 display.goto(display_width, display_height)
 display.goto(-display_width, display_height)
 display.goto(-display_width, -display_height)
 display.end_fill()
+#############################################################
+
+#Making the inner box that it looks like they interact with##
+display.penup()
+display.pensize(3)
+display.goto(-display_width + 10, -display_height + 10)
+display.pendown()
+display.pencolor("black")
+display.fillcolor("white")
+display.begin_fill()
+display.goto(display_width - 10, -display_height + 10)
+display.goto(display_width - 10, display_height - 10)
+display.goto(-display_width + 10, display_height - 10)
+display.goto(-display_width + 10, -display_height +10)
+display.end_fill()
 screen.update()
 ###############################################
 
 ##Ask the user how many turtles they want to create##
-num_balls = screen.numinput("Circles", "How many Circles do you want?", minval=1, maxval=10, default=5)
+num_balls = screen.numinput("Circles", "How many Circles do you want?", minval=1, maxval=10000, default=5)
 #####################################################
 
 ##Put the selected number of turtles in a list##
@@ -47,7 +64,7 @@ for i in range(int(num_balls)):
   while True: 
     overlap = False
     for other_ball in balls:
-      if ball.distance(other_ball) < 40: #Checks if the distance between the two turtles is less than 40 pixels
+      if ball.distance(other_ball) < 0: #Checks if the distance between the two turtles is less than 40 pixels
         overlap = True
         break
     if not overlap:
@@ -60,9 +77,11 @@ for i in range(int(num_balls)):
   ##Giving them the speed and angle##
   angle = random.uniform(0, 360)
   speed = random.uniform(15,25)
-  ball.dx = speed * math.cos(math.radians(angle))
+  ##Makes the speed and angle into movement with#
+  ball.dx = speed * math.cos(math.radians(angle)) 
   ball.dy = speed * math.sin(math.radians(angle))
   ###################################
+  ball.pensize(2)
   ball.pendown()
   balls.append(ball)
   screen.update()
@@ -93,17 +112,20 @@ started = False
 def move_balls():
   if started:
     for ball in balls:
-      new_x = ball.xcor() + ball.dx
+      new_x = ball.xcor() + ball.dx ##Decides where the ball will go based on current pos, speed and angle
       new_y = ball.ycor() + ball.dy
 
-    if new_x < -display_width + 10 or new_x > display_width - 10:
-      ball.dx *= -1
-    if new_y < -display_height +10 or new_y > display_height - 10:
-      ball.dy *= -1
+			##Reverses direction if it gets close to a wall##
+      if new_x < -display_width + 10 or new_x > display_width - 10:
+        ball.dx *= -1
+      if new_y < -display_height +10 or new_y > display_height - 10:
+        ball.dy *= -1
+      ball.goto(ball.xcor()+ball.dx, ball.ycor()+ball.dy)
+			#################################################
+  
 
-    ball.goto(ball.xcor()+ball.dx, ball.ycor()+ball.dy)
-
-  global collision_count
+	##If circles get too close they swap speed and angle and add one to the collision counter##
+  global collision_count 
   for i in range(len(balls)):
     for j in range(i + 1, len(balls)):
       ball = balls[i]
@@ -114,9 +136,9 @@ def move_balls():
         collision_count += 1
         collision_counter.clear()
         collision_counter.write(f"Collisions: {collision_count}", align="center", font=("Arial", 16, "normal"))
-
+  #############################################################################################
   screen.update()
-  screen.ontimer(move_balls, 33)
+  screen.ontimer(move_balls, 40)
 
 def start():
   global started
