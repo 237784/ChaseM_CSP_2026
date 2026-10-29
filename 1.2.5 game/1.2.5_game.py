@@ -30,6 +30,9 @@ def go_up(balloon_turtle, speed):
     balloon_turtle.sety(balloon_turtle.ycor() + speed*2)
     if balloon_turtle.ycor() < 300:  # Check if the balloon is still within the screen bounds
         wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)  # Continue moving up after a short delay
+    else:
+        break
+
 
 ##Score system##
 font_setup = ("Coiny", 20, "normal")    
@@ -42,8 +45,6 @@ score_writer.goto(-300, 230)
 score_writer.write("Score: " + str(score), font=font_setup, align="center")
 
 ##Pop the balloon function##
-def pop_balloon(x, y):
-    global score
 
 ##Losing function##
 def lose_game():
@@ -59,6 +60,7 @@ def lose_game():
 def balloon_click(x,y): ##remove the current balloon from the screen and make a new one begin to move and update the score
     balloon_turtle.hideturtle()
     update_score()
+    
 
 
 
@@ -68,6 +70,7 @@ def update_score():
     score += balloon[i]+1
     score_writer.clear()
     score_writer.write("Score: " + str(score), font=font_setup, align="center")
+    wn.update()
 
 ##Show them on the screen##
 for i, balloon in enumerate(balloons):
@@ -78,13 +81,13 @@ for i, balloon in enumerate(balloons):
     balloon_turtle.penup()
     balloon_turtle.goto(rand.randint(-300, 300), -300)
     balloon_turtle.showturtle()  # Show the turtle after setting its shape
+    balloon_turtle.onclick(balloon_click)
     while balloon_turtle.ycor() < 300:  # Keep moving the balloon up until it reaches the top of the screen
         go_up(balloon_turtle, speed[i])  # Start moving the balloon up
         wn.update()  # Update the screen to reflect the changes
     if balloon_turtle.ycor() >= 300:  # If the balloon reaches the top of the screen
         lose_game()  #losing function
         break  # Exit the loop since the game is over
-    #elif balloon_click():
 
         
 wn.listen()
