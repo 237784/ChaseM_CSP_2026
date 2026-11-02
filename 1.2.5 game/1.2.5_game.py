@@ -10,6 +10,7 @@ pink_balloon = "_pinkballoon.gif"
 
 ##setting up the screen##
 wn = trtl.Screen()
+wn.title("Pop the ballons")
 wn.setup(width=740, height=555)
 wn.cv._rootwindow.resizable(False, False)
 wn.addshape(red_balloon)
@@ -22,16 +23,16 @@ wn.tracer(1)
 balloons = [red_balloon, blue_balloon, yellow_balloon, pink_balloon]
 speed = [1, 2, 3, 4]
 
+clicked = False
+
 ##Game Functions##
 
 ##go up function##
 def go_up(balloon_turtle, speed):
-    """Moves the balloon turtle up the screen at the specified speed."""
     balloon_turtle.sety(balloon_turtle.ycor() + speed*2)
-    if balloon_turtle.ycor() < 300:  # Check if the balloon is still within the screen bounds
-        wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)  # Continue moving up after a short delay
-    else:
-        break
+    if balloon_turtle.ycor() < 300:
+        wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)
+     
 
 
 ##Score system##
@@ -44,8 +45,8 @@ score_writer.penup()
 score_writer.goto(-300, 230)
 score_writer.write("Score: " + str(score), font=font_setup, align="center")
 
-##Pop the balloon function##
-
+##Pop balloon function##
+    
 ##Losing function##
 def lose_game():
     global score
@@ -57,38 +58,52 @@ def lose_game():
     wn.update()
 
 ##Balloon clicked##
-def balloon_click(x,y): ##remove the current balloon from the screen and make a new one begin to move and update the score
+def balloon_click(x, y): ##remove the current balloon from the screen and make a new one begin to move and update the score
+    global clicked
+    clicked = True
     balloon_turtle.hideturtle()
+
+    balloon_turtle.goto(rand.randint(-300, 300), -300)
+    
+
+
+    balloon_turtle.showturtle()
     update_score()
     
 
 
 
-##Update the score when a balloon is clicked##
+##Update the score##
 def update_score():
     global score
-    score += balloon[i]+1
+    global speed
+    score += speed[i]
     score_writer.clear()
     score_writer.write("Score: " + str(score), font=font_setup, align="center")
     wn.update()
 
-##Show them on the screen##
-for i, balloon in enumerate(balloons):
-    balloon_turtle = trtl.Turtle()
-    balloon_turtle.hideturtle() 
-    balloon_turtle.shape(balloon)
-    balloon_turtle.speed(0)
-    balloon_turtle.penup()
-    balloon_turtle.goto(rand.randint(-300, 300), -300)
-    balloon_turtle.showturtle()  # Show the turtle after setting its shape
-    balloon_turtle.onclick(balloon_click)
-    while balloon_turtle.ycor() < 300:  # Keep moving the balloon up until it reaches the top of the screen
-        go_up(balloon_turtle, speed[i])  # Start moving the balloon up
-        wn.update()  # Update the screen to reflect the changes
-    if balloon_turtle.ycor() >= 300:  # If the balloon reaches the top of the screen
-        lose_game()  #losing function
-        break  # Exit the loop since the game is over
+balloon_turtle = trtl.Turtle()
 
+##Show them on the screen##
+while True:
+    #rand.shuffle(balloons)
+    for i, balloon in enumerate(balloons):
+        balloon_turtle.hideturtle() 
+        balloon_turtle.shape(balloon)
+        balloon_turtle.speed(0)
+        balloon_turtle.penup()
+        balloon_turtle.goto(rand.randint(-300, 300), -300)
+        balloon_turtle.showturtle() 
+        balloon_turtle.onclick(balloon_click)
+        while balloon_turtle.ycor() < 300: 
+            go_up(balloon_turtle, speed[i]) 
+            wn.update()  
+            print(clicked)
+            if balloon_turtle.ycor() >= 300 and clicked is False:
+                lose_game()
+                break
+        clicked = False
+    
         
 wn.listen()
 wn.mainloop()
