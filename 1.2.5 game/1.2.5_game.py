@@ -29,10 +29,12 @@ clicked = False
 
 ##go up function##
 def go_up(balloon_turtle, speed):
-    balloon_turtle.sety(balloon_turtle.ycor() + speed*2)
-    if balloon_turtle.ycor() < 300:
-        wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)
+    balloon_turtle.sety(balloon_turtle.ycor() + speed*1.5)
 
+    if balloon_turtle.ycor() >= 300:
+        lose_game()
+    else:
+        wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)
 ## Ballon Turtle     
 balloon_turtle = trtl.Turtle()
 balloon_turtle.penup()
@@ -59,6 +61,7 @@ def lose_game():
     score_writer.write("You Lose!", font=font_setup, align="center")
     score_writer.goto(0, -30)
     score_writer.write("Final Score: " + str(score), font=font_setup, align="center")
+    lost = True
     wn.update()
 
 
@@ -76,37 +79,42 @@ def balloon_click(x, y): ##remove the current balloon from the screen and make a
 def update_score():
     global score
     global speed
-    score += speed[i]
+    score += current_speed
     score_writer.clear()
     score_writer.write("Score: " + str(score), font=font_setup, align="center")
     wn.update()
 
+current_speed = 0
+current_index = 0
+
 ##Set the ballon off of screen
 def reset_balloon():
-    new_balloon = rand.randint(0,(len(balloons)-1))
+    global current_speed
+    global current_index
+
+    current_index = rand.randint(0,(len(balloons)-1))
+    current_speed = speed[current_index]
+
     balloon_turtle.hideturtle()
-    balloon_turtle.shape(balloons[new_balloon])
+    balloon_turtle.shape(balloons[current_index])
     balloon_turtle.speed(0)
     balloon_turtle.goto(rand.randint(-300, 300), -300)
-    balloon_turtle.speed(speed[new_balloon])
     balloon_turtle.showturtle()
-    print(balloons[new_balloon])
+
+    print("Balloon:", balloons[current_index])
+    print("Speed:", current_speed)
+
+lost = False
 ##Show them on the screen##
 while True:
-    #rand.shuffle(balloons)
     reset_balloon()
-    for i, balloon in enumerate(balloons):
+    while lost == False:
         balloon_turtle.onclick(balloon_click)
         while balloon_turtle.ycor() < 300: 
-            go_up(balloon_turtle, speed[i]) 
+            go_up(balloon_turtle, current_speed) 
             wn.update()  
-            print(clicked)
-        if balloon_turtle.ycor() >= 300 and clicked is False:
-            lose_game()
-            break
+
         clicked = False
-    
-    
-        
+          
 wn.listen()
 wn.mainloop()
