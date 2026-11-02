@@ -32,7 +32,11 @@ def go_up(balloon_turtle, speed):
     balloon_turtle.sety(balloon_turtle.ycor() + speed*2)
     if balloon_turtle.ycor() < 300:
         wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)
-     
+
+## Ballon Turtle     
+balloon_turtle = trtl.Turtle()
+balloon_turtle.penup()
+balloon_turtle.speed(0)
 
 
 ##Score system##
@@ -57,20 +61,15 @@ def lose_game():
     score_writer.write("Final Score: " + str(score), font=font_setup, align="center")
     wn.update()
 
+
 ##Balloon clicked##
 def balloon_click(x, y): ##remove the current balloon from the screen and make a new one begin to move and update the score
     global clicked
+    global balloons
     clicked = True
-    balloon_turtle.hideturtle()
-
-    balloon_turtle.goto(rand.randint(-300, 300), -300)
-    
-
-
-    balloon_turtle.showturtle()
+    reset_balloon()
     update_score()
     
-
 
 
 ##Update the score##
@@ -82,27 +81,31 @@ def update_score():
     score_writer.write("Score: " + str(score), font=font_setup, align="center")
     wn.update()
 
-balloon_turtle = trtl.Turtle()
-
+##Set the ballon off of screen
+def reset_balloon():
+    new_balloon = rand.randint(0,(len(balloons)-1))
+    balloon_turtle.hideturtle()
+    balloon_turtle.shape(balloons[new_balloon])
+    balloon_turtle.speed(0)
+    balloon_turtle.goto(rand.randint(-300, 300), -300)
+    balloon_turtle.speed(speed[new_balloon])
+    balloon_turtle.showturtle()
+    print(balloons[new_balloon])
 ##Show them on the screen##
 while True:
     #rand.shuffle(balloons)
+    reset_balloon()
     for i, balloon in enumerate(balloons):
-        balloon_turtle.hideturtle() 
-        balloon_turtle.shape(balloon)
-        balloon_turtle.speed(0)
-        balloon_turtle.penup()
-        balloon_turtle.goto(rand.randint(-300, 300), -300)
-        balloon_turtle.showturtle() 
         balloon_turtle.onclick(balloon_click)
         while balloon_turtle.ycor() < 300: 
             go_up(balloon_turtle, speed[i]) 
             wn.update()  
             print(clicked)
-            if balloon_turtle.ycor() >= 300 and clicked is False:
-                lose_game()
-                break
+        if balloon_turtle.ycor() >= 300 and clicked is False:
+            lose_game()
+            break
         clicked = False
+    
     
         
 wn.listen()
