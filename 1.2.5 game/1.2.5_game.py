@@ -2,7 +2,7 @@
 import turtle as trtl
 import random as rand
 import math as math
-
+import json
 #import images
 red_balloon = "_redballoon.gif"
 blue_balloon = "_blueballoon.gif"
@@ -20,13 +20,41 @@ wn.addshape(yellow_balloon)
 wn.addshape(pink_balloon)
 wn.bgpic("gamebackground.gif")
 wn.tracer(1)
+
 ##Lists##
 balloons = [red_balloon, blue_balloon, yellow_balloon, pink_balloon]
 speed = [1, 2, 3, 4]
+leaderboard = []
 
 clicked = False
 
 ##Game Functions#
+
+##Leaderboard Functions##
+def load_leaderboard():
+    global leaderboard
+    try:
+        with open("leaderboard.json", "r") as file:
+            leaderboard = json.load(file)
+    except:
+        leaderboard = []
+
+##Saving leaderboard##
+def save_leaderboard():
+    with open("leaderboard.json", "w") as file:
+        json.dump(leaderboard, file)
+
+##Adding score to leaderboard##
+def add_score():
+    global leaderboard
+
+    name = wn.textinput("Leaderboard", "Enter your name:")
+
+    leaderboard.append([name, score])
+    leaderboard.sort(key=lambda x: x[1], reverse=True)
+
+    leaderboard = leaderboard[:5]
+    save_leaderboard()
 
 ## Ballon Turtle     
 balloon_turtle = trtl.Turtle()
@@ -59,6 +87,10 @@ def go_up(balloon_turtle, speed):
 def lose_game():
     global lost
     global score
+
+    lost = True
+    add_score()
+
     score_writer.clear()
     score_writer.goto(0, 0)
     score_writer.write("You Lose!", font=font_setup, align="center")
@@ -66,7 +98,8 @@ def lose_game():
     score_writer.write("Final Score: " + str(score), font=font_setup, align="center")
     score_writer.goto(0, -60)
     score_writer.write("Press 'Space' to play again or 'q' to quit", font=font_setup, align="center")
-    lost = True
+
+    show_leaderboard()
     wn.update()
 
 ##Reset game function##
@@ -125,6 +158,27 @@ def reset_balloon():
    # print("Speed:", current_speed)
     print("total multiplier:", 1.01**(score))
 
+
+
+##Leaderboard Turtle and showing it##
+leaderboard_writer = trtl.Turtle()
+leaderboard_writer.hideturtle()
+leaderboard_writer.penup()
+leaderboard_writer.speed(0)
+
+def show_leaderboard():
+    leaderboard_writer.clear()
+    leaderboard_writer.goto(0, 150)
+
+    leaderboard_writer.write("Leaderboard", font=font_setup, align="center")
+
+    for i, entry in enumerate(leaderboard):
+        leaderboard_writer.goto(0, 110 - (i * 30))
+        leaderboard_writer.write(f"{entry[0]}: {entry[1]}", font=font_setup_s, align="center")
+        
+
+
+load_leaderboard()
 wn.listen()
 wn.onkeypress(reset_game, "space")
 wn.onkeypress(wn.bye, "q")
