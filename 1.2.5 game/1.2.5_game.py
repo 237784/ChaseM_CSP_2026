@@ -1,6 +1,7 @@
 #game - Rising Balloons
 import turtle as trtl
 import random as rand
+import math as math
 
 #import images
 red_balloon = "_redballoon.gif"
@@ -25,16 +26,8 @@ speed = [1, 2, 3, 4]
 
 clicked = False
 
-##Game Functions##
+##Game Functions#
 
-##go up function##
-def go_up(balloon_turtle, speed):
-    balloon_turtle.sety(balloon_turtle.ycor() + speed*1.5)
-
-    if balloon_turtle.ycor() >= 300:
-        lose_game()
-    else:
-        wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)
 ## Ballon Turtle     
 balloon_turtle = trtl.Turtle()
 balloon_turtle.penup()
@@ -42,7 +35,8 @@ balloon_turtle.speed(0)
 
 
 ##Score system##
-font_setup = ("Coiny", 20, "normal")    
+font_setup = ("Coiny", 20, "normal")  
+font_setup_s = ("Coiny", 12, "normal")  
 score = 0
 score_writer = trtl.Turtle()
 score_writer.hideturtle()
@@ -51,35 +45,61 @@ score_writer.penup()
 score_writer.goto(-300, 230)
 score_writer.write("Score: " + str(score), font=font_setup, align="center")
 
-##Pop balloon function##
+##go up function##
+def go_up(balloon_turtle, speed):
+    balloon_turtle.sety(balloon_turtle.ycor() + (speed*1.5)*(1.01**(score)))
+
+'''
+   if balloon_turtle.ycor() >= 300:
+        lose_game()
+    else:
+        wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)'''
     
 ##Losing function##
 def lose_game():
+    global lost
     global score
     score_writer.clear()
     score_writer.goto(0, 0)
     score_writer.write("You Lose!", font=font_setup, align="center")
     score_writer.goto(0, -30)
     score_writer.write("Final Score: " + str(score), font=font_setup, align="center")
+    score_writer.goto(0, -60)
+    score_writer.write("Press 'Space' to play again or 'q' to quit", font=font_setup, align="center")
     lost = True
     wn.update()
 
+##Reset game function##
+def reset_game():
+    global lost
+    global score
+    global clicked
+    if lost == True:
+        score = 0
+        score_writer.clear()
+        score_writer.goto(-300, 230)
+        score_writer.write("Score: " + str(score), font=font_setup, align="center")
+        lost = False
+        clicked = False
+        reset_balloon()
+        
+    
 
 ##Balloon clicked##
 def balloon_click(x, y): ##remove the current balloon from the screen and make a new one begin to move and update the score
     global clicked
     global balloons
     clicked = True
-    reset_balloon()
     update_score()
+    reset_balloon()
     
-
 
 ##Update the score##
 def update_score():
     global score
-    global speed
-    score += current_speed
+    global current_index
+    score += speed[current_index]
+    #print("added this many",speed[current_index])
     score_writer.clear()
     score_writer.write("Score: " + str(score), font=font_setup, align="center")
     wn.update()
@@ -101,20 +121,30 @@ def reset_balloon():
     balloon_turtle.goto(rand.randint(-300, 300), -300)
     balloon_turtle.showturtle()
 
-    print("Balloon:", balloons[current_index])
-    print("Speed:", current_speed)
+   # print("Balloon:", balloons[current_index])
+   # print("Speed:", current_speed)
+    print("total multiplier:", 1.01**(score))
+
+wn.listen()
+wn.onkeypress(reset_game, "space")
+wn.onkeypress(wn.bye, "q")
 
 lost = False
 ##Show them on the screen##
 while True:
     reset_balloon()
+    balloon_turtle.onclick(balloon_click)
     while lost == False:
         balloon_turtle.onclick(balloon_click)
-        while balloon_turtle.ycor() < 300: 
-            go_up(balloon_turtle, current_speed) 
-            wn.update()  
+        #while balloon_turtle.ycor() < 300: 
+        go_up(balloon_turtle, current_speed) 
+        wn.update()  
 
-        clicked = False
-          
-wn.listen()
-wn.mainloop()
+        if clicked == True:
+            clicked = False
+
+        if balloon_turtle.ycor() >= 300:
+            lose_game()
+
+    if lost == True:
+        wn.update()
