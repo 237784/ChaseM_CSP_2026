@@ -99,7 +99,8 @@ score_writer.write("Score: " + str(score), font=font_setup, align="center")
 
 ##go up function##
 def go_up(balloon_turtle, speed):
-    balloon_turtle.sety(balloon_turtle.ycor() + (speed*1.5)*(1.01**(score)))
+    catch_up = abs(speed - 4) * (score * .01)
+    balloon_turtle.sety(balloon_turtle.ycor() + (speed * 1.5 + catch_up) * (1.01 ** (score)))
 ##################
 
 ##Losing function##
