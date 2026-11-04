@@ -20,47 +20,70 @@ wn.addshape(yellow_balloon)
 wn.addshape(pink_balloon)
 wn.bgpic("gamebackground.gif")
 wn.tracer(1)
+#########################
 
 ##Lists##
 balloons = [red_balloon, blue_balloon, yellow_balloon, pink_balloon]
 speed = [1, 2, 3, 4]
 leaderboard = []
+########
 
+
+##Clicked variable for later##
 clicked = False
+##############################
 
 ##Game Functions#
 
-##Leaderboard Functions##
+##Open leaderboard##
 def load_leaderboard():
     global leaderboard
-    try:
-        with open("leaderboard.json", "r") as file:
-            leaderboard = json.load(file)
-    except:
-        leaderboard = []
+    with open("leaderboard.json", "r") as file:
+        leaderboard = json.load(file)
+#########################
 
 ##Saving leaderboard##
 def save_leaderboard():
     with open("leaderboard.json", "w") as file:
         json.dump(leaderboard, file)
+#######################
 
 ##Adding score to leaderboard##
 def add_score():
     global leaderboard
 
     name = wn.textinput("Leaderboard", "Enter your name:")
+    
+    if name == None or name.strip() == "":
+        name = "Anonymous"
 
-    leaderboard.append([name, score])
+    name = name.strip()
+    
+    ##Check if name exists##
+    existing_player = None
+
+    for entry in leaderboard:
+        if entry[0].lower() == name.lower():
+            existing_player = entry
+            break
+
+    if existing_player != None:
+        if score > existing_player[1]:
+            existing_player[1] = score
+    else:
+        leaderboard.append([name, score])
+
     leaderboard.sort(key=lambda x: x[1], reverse=True)
-
     leaderboard = leaderboard[:5]
+    ###########################
     save_leaderboard()
+########################
 
-## Ballon Turtle     
+##Ballon Turtle##
 balloon_turtle = trtl.Turtle()
 balloon_turtle.penup()
 balloon_turtle.speed(0)
-
+#################
 
 ##Score system##
 font_setup = ("Coiny", 20, "normal")  
@@ -72,17 +95,13 @@ score_writer.speed(0)
 score_writer.penup()
 score_writer.goto(-300, 230)
 score_writer.write("Score: " + str(score), font=font_setup, align="center")
+##################
 
 ##go up function##
 def go_up(balloon_turtle, speed):
     balloon_turtle.sety(balloon_turtle.ycor() + (speed*1.5)*(1.01**(score)))
+##################
 
-'''
-   if balloon_turtle.ycor() >= 300:
-        lose_game()
-    else:
-        wn.ontimer(lambda: go_up(balloon_turtle, speed), 50)'''
-    
 ##Losing function##
 def lose_game():
     global lost
@@ -97,10 +116,11 @@ def lose_game():
     score_writer.goto(0, -30)
     score_writer.write("Final Score: " + str(score), font=font_setup, align="center")
     score_writer.goto(0, -60)
-    score_writer.write("Press 'Space' to play again or 'q' to quit", font=font_setup, align="center")
+    score_writer.write("Press 'Space' to play again or 'q' to quit", font=font_setup_s, align="center")
 
     show_leaderboard()
     wn.update()
+####################
 
 ##Reset game function##
 def reset_game():
@@ -110,22 +130,23 @@ def reset_game():
     if lost == True:
         score = 0
         score_writer.clear()
+        leaderboard_writer.clear()
         score_writer.goto(-300, 230)
         score_writer.write("Score: " + str(score), font=font_setup, align="center")
         lost = False
         clicked = False
         reset_balloon()
-        
+########################    
     
 
 ##Balloon clicked##
-def balloon_click(x, y): ##remove the current balloon from the screen and make a new one begin to move and update the score
+def balloon_click(x, y):
     global clicked
     global balloons
     clicked = True
     update_score()
     reset_balloon()
-    
+####################
 
 ##Update the score##
 def update_score():
@@ -136,11 +157,14 @@ def update_score():
     score_writer.clear()
     score_writer.write("Score: " + str(score), font=font_setup, align="center")
     wn.update()
+###################
 
+##Makes stuff easier##
 current_speed = 0
 current_index = 0
+#####################
 
-##Set the ballon off of screen
+##Put balloon back to bottom##
 def reset_balloon():
     global current_speed
     global current_index
@@ -157,7 +181,7 @@ def reset_balloon():
    # print("Balloon:", balloons[current_index])
    # print("Speed:", current_speed)
     print("total multiplier:", 1.01**(score))
-
+################################
 
 
 ##Leaderboard Turtle and showing it##
@@ -168,23 +192,24 @@ leaderboard_writer.speed(0)
 
 def show_leaderboard():
     leaderboard_writer.clear()
-    leaderboard_writer.goto(0, 150)
+    leaderboard_writer.goto(0, 200)
 
     leaderboard_writer.write("Leaderboard", font=font_setup, align="center")
 
     for i, entry in enumerate(leaderboard):
-        leaderboard_writer.goto(0, 110 - (i * 30))
+        leaderboard_writer.goto(0, 170 - (i * 30))
         leaderboard_writer.write(f"{entry[0]}: {entry[1]}", font=font_setup_s, align="center")
-        
+################################
 
-
+##Game functions that are like in the game ya know##
 load_leaderboard()
 wn.listen()
 wn.onkeypress(reset_game, "space")
 wn.onkeypress(wn.bye, "q")
-
+####################################################
 lost = False
-##Show them on the screen##
+
+##Main loop##
 while True:
     reset_balloon()
     balloon_turtle.onclick(balloon_click)
@@ -192,7 +217,8 @@ while True:
         balloon_turtle.onclick(balloon_click)
         #while balloon_turtle.ycor() < 300: 
         go_up(balloon_turtle, current_speed) 
-        wn.update()  
+        wn.update()
+        wn.listen()  
 
         if clicked == True:
             clicked = False
@@ -201,4 +227,5 @@ while True:
             lose_game()
 
     if lost == True:
+        wn.listen()
         wn.update()
